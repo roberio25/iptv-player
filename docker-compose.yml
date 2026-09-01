@@ -1,0 +1,41 @@
+version: '3.8'
+
+services:
+  iptv-player:
+    build: .
+    container_name: iptv-player
+    environment:
+      - PYTHONUNBUFFERED=1
+      - DISPLAY=${DISPLAY}
+    volumes:
+      - ./data:/app/data
+      - ./config:/app/config
+      - /tmp/.X11-unix:/tmp/.X11-unix:rw
+    ports:
+      - "5000:5000"
+    networks:
+      - iptv-network
+    restart: unless-stopped
+
+  # Optional: PostgreSQL for advanced features
+  postgres:
+    image: postgres:15-alpine
+    container_name: iptv-db
+    environment:
+      POSTGRES_DB: iptv
+      POSTGRES_USER: iptv_user
+      POSTGRES_PASSWORD: iptv_password
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    networks:
+      - iptv-network
+    restart: unless-stopped
+
+networks:
+  iptv-network:
+    driver: bridge
+
+volumes:
+  postgres_data:
